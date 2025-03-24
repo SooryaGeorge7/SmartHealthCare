@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package discovery;
+
+service DiscoveryService{
+  rpc DiscoverService(ServiceRequest) returns (ServiceResponse);
+}
+
+message ServiceRequest{
+  string serviceName =1;
+
+}
+
+message ServiceResponse{
+  string address =1;
+}

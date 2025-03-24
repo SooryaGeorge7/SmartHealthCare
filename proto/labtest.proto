@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package labtest;
+
+
+service LabTestService{
+  rpc StreamLabResults(LabtestRequest) returns (Stream LabtestResponse);
+}
+
+message LabtestRequest{
+  string patient_id = 1;
+}
+
+message LabtestResponse {
+  string test_name =1;
+  string result = 2;
+}
+

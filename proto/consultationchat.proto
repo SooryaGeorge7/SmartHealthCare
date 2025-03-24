@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package consultationchat;
+
+
+
+service ChatService{
+  rpc ConsultationChat(stream PatientMessage) returns (Stream DoctorMessage);
+}
+
+message PatientMessage{
+  string patient_message = 1;
+}
+
+message DoctorMessage{
+  string doctor_message =1;
+}
+

@@ -1,0 +1,26 @@
+{
+  "name": "smarthealthcare",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SooryaGeorge7/SmartHealthCare.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SooryaGeorge7/SmartHealthCare/issues"
+  },
+  "homepage": "https://github.com/SooryaGeorge7/SmartHealthCare#readme",
+  "description": "",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.13.1",
+    "@grpc/proto-loader": "^0.7.13",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2"
+  }
+}
