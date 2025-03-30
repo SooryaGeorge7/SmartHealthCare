@@ -27,9 +27,54 @@ function fetchVitals(call, callback) {
     });
   }
 }
+// StreamHeartRate - Client-Streaming RPC
+function streamHeartRate(call, callback) {
+  let totalHeartRate = 0;
+  let count = 0;
 
+  // Listen for incoming heart rate data from the client
+  call.on('data', (heartRateData) => {
+    totalHeartRate += heartRateData.bpm;
+    count++;
+    console.log(`Received Heart Rate: ${heartRateData.bpm}`);
+  });
 
-const service = new grpc.Server();
+  // When the client is done streaming
+  call.on('end', () => {
+    if (count === 0) {
+      return callback({
+        code: grpc.status.INVALID_ARGUMENT,
+        message: "No heart rate data received."
+      });
+    }
+
+    const avgHeartRate = Math.round(totalHeartRate / count);
+    let riskLevel, recommendation;
+
+    // Determine risk level based on average heart rate
+    if (avgHeartRate < 60) {
+      riskLevel = "Low";
+      recommendation = "Monitor if you feel dizzy or weak.";
+    } else if (avgHeartRate >= 60 && avgHeartRate <= 100) {
+      riskLevel = "Normal";
+      recommendation = "Maintain a healthy lifestyle.";
+    } else {
+      riskLevel = "High";
+      recommendation = "Consult a doctor for further evaluation.";
+    }
+
+    console.log(`Final Summary -> Avg Heart Rate: ${avgHeartRate}, Risk: ${riskLevel}`);
+
+    // Send summary back to client
+    callback(null, {
+      average_heartrate: avgHeartRate,
+      risk_level: riskLevel,
+      recommendation: recommendation
+    });
+  });
+}
+
+const server = new grpc.Server();
 server.addService(healthMonitorProto.HealthMonitorService.service,{
   FetchVitals : fetchVitals,
   StreamHeartRate : streamHeartRate
@@ -38,6 +83,6 @@ server.addService(healthMonitorProto.HealthMonitorService.service,{
 
 server.bindAsync('127.0.0.1:50051', grpc.ServerCredentials.createInsecure(), ()=>{
   console.log('health monitor service is running');
-  server.start();
+  
 
 });
