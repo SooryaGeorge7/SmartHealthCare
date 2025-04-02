@@ -17,7 +17,16 @@ const labTestClient = new labTestProto.LabTestService('localhost:50053', grpc.cr
 const chatClient = new consultationChatProto.Chatservice('localhost:50052', grpc.credentials.createInsecure());
 const discoveryClient = new discoveryProto.DiscoveryService('localhost:50050', grpc.credentials.createInsecure());
 
-
+const fetchVitals = (patientId, callback) => {
+  healthMonitorClient.FetchVitals({ patient_id: patientId }, (err, response) => {
+    if (err) {
+      console.error("Error fetching vitals:", err);
+      callback(null);
+    } else {
+      callback(response);
+    }
+  });
+};
 
 const discoverService = (serviceName, callback) => {
   discoveryClient.DiscoveryService({
@@ -33,6 +42,7 @@ const discoverService = (serviceName, callback) => {
 };
 
 module.exports = {
-  discoverService
+  discoverService,
+  fetchVitals
 };
  
