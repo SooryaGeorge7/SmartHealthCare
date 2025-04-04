@@ -41,6 +41,21 @@ const streamHeartRate = (heartRateDataArray, callback) => {
   call.end();
 };
 
+const streamLabResults = (patientId, callback) => {
+  const call = labTestClient.StreamLabResults({ patient_id: patientId });
+  const results = [];
+
+  call.on('data', (result) => {
+    console.log("Received lab result:", result);
+    results.push(result);
+  });
+
+  call.on('end', () => {
+    console.log("Lab results streaming completed");
+    callback(results);
+  });
+};
+
 const discoverService = (serviceName, callback) => {
   discoveryClient.DiscoveryService({
     serviceName: serviceName
@@ -57,6 +72,7 @@ const discoverService = (serviceName, callback) => {
 module.exports = {
   discoverService,
   fetchVitals,
-  streamHeartRate
+  streamHeartRate,
+  streamLabResults
 };
  
