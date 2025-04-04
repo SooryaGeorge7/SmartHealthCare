@@ -17,6 +17,23 @@ const labTestClient = new labTestProto.LabTestService('localhost:50053', grpc.cr
 const chatClient = new consultationChatProto.Chatservice('localhost:50052', grpc.credentials.createInsecure());
 const discoveryClient = new discoveryProto.DiscoveryService('localhost:50050', grpc.credentials.createInsecure());
 
+const consultationChat = (patientMessage, callback) => {
+  const call = chatClient.ConsultationChat();
+  
+  call.write({ patient_message: patientMessage });
+  
+  call.on('data', (response) => {
+    console.log("Received from Doctor:", response.doctor_message);
+    callback(response);
+  });
+  
+  call.on('end', () => {
+    console.log("Chat session ended");
+  });
+
+  call.end();
+};
+
 const fetchVitals = (patientId, callback) => {
   healthMonitorClient.FetchVitals({ patient_id: patientId }, (err, response) => {
     if (err) {
@@ -73,6 +90,7 @@ module.exports = {
   discoverService,
   fetchVitals,
   streamHeartRate,
-  streamLabResults
+  streamLabResults,
+  consultationChat
 };
  
