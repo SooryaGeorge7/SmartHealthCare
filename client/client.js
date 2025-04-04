@@ -12,7 +12,7 @@ const labTestProto = grpc.loadPackageDefinition(protoLoader.loadSync(LABTEST_PRO
 const consultationChatProto = grpc.loadPackageDefinition(protoLoader.loadSync(CONSULTATIONCHAT_PROTO_PATH)).consultationchat;
 const discoveryProto = grpc.loadPackageDefinition(protoLoader.loadSync(DISCOVERY_PROTO_PATH)).discovery;
 
-const healthMonitorClient = new healthMonitorProto.HealthMonitorservice('localhost:50051', grpc.credentials.createInsecure());
+const healthMonitorClient = new healthMonitorProto.HealthMonitorService('localhost:50051', grpc.credentials.createInsecure());
 const labTestClient = new labTestProto.LabTestService('localhost:50053', grpc.credentials.createInsecure());
 const chatClient = new consultationChatProto.Chatservice('localhost:50052', grpc.credentials.createInsecure());
 const discoveryClient = new discoveryProto.DiscoveryService('localhost:50050', grpc.credentials.createInsecure());
@@ -26,6 +26,19 @@ const fetchVitals = (patientId, callback) => {
       callback(response);
     }
   });
+};
+const streamHeartRate = (heartRateDataArray, callback) => {
+  const call = healthMonitorClient.StreamHeartRate((err, response) => {
+    if (err) {
+      console.error("Error streaming heart rate:", err);
+      callback(null);
+    } else {
+      callback(response);
+    }
+  });
+
+  heartRateDataArray.forEach(data => call.write({ bpm: data }));
+  call.end();
 };
 
 const discoverService = (serviceName, callback) => {
@@ -43,6 +56,7 @@ const discoverService = (serviceName, callback) => {
 
 module.exports = {
   discoverService,
-  fetchVitals
+  fetchVitals,
+  streamHeartRate
 };
  
