@@ -44,18 +44,12 @@ const fetchVitals = (patientId, callback) => {
     }
   });
 };
-const streamHeartRate = (heartRateDataArray, callback) => {
-  const call = healthMonitorClient.StreamHeartRate((err, response) => {
-    if (err) {
-      console.error("Error streaming heart rate:", err);
-      callback(null);
-    } else {
-      callback(response);
-    }
-  });
 
-  heartRateDataArray.forEach(data => call.write({ bpm: data }));
-  call.end();
+
+const streamHeartRate = (callback) => {
+  healthMonitorClient.streamHeartRate()
+    .then(response => callback(response))
+    .catch(err => callback(err));
 };
 
 const streamLabResults = (patientId, callback) => {
