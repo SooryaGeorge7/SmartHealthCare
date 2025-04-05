@@ -54,14 +54,21 @@ const streamHeartRate = (callback) => {
 
 const streamLabResults = (patientId, callback) => {
   const call = labTestClient.StreamLabResults({ patient_id: patientId });
+  const results = [];
 
   call.on('data', (result) => {
     console.log("Received lab result:", result);
+    results.push(result);
   });
 
   call.on('end', () => {
     console.log("Lab results streaming completed");
     callback(results);
+  });
+
+  call.on('error', (err) => {
+    console.error("Error streaming lab results:", err);
+    callback(null);
   });
 };
 
