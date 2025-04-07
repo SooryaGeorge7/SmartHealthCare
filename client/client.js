@@ -12,64 +12,73 @@ const labTestProto = grpc.loadPackageDefinition(protoLoader.loadSync(LABTEST_PRO
 const consultationChatProto = grpc.loadPackageDefinition(protoLoader.loadSync(CONSULTATIONCHAT_PROTO_PATH)).consultationchat;
 const discoveryProto = grpc.loadPackageDefinition(protoLoader.loadSync(DISCOVERY_PROTO_PATH)).discovery;
 
-const healthMonitorClient = new healthMonitorProto.HealthMonitorService('localhost:50051', grpc.credentials.createInsecure());
-const labTestClient = new labTestProto.LabTestService('localhost:50053', grpc.credentials.createInsecure());
+const healthMonitorClient =require('./healthMonitorClient');
+const labTestClient = require('./labTestclient')
 const chatClient = new consultationChatProto.Chatservice('localhost:50052', grpc.credentials.createInsecure());
 const discoveryClient = new discoveryProto.DiscoveryService('localhost:50050', grpc.credentials.createInsecure());
 
-const consultationChat = (patientMessage, callback) => {
+
+const consultationChat = (callback) => {
+  
   const call = chatClient.ConsultationChat();
-  
-  call.write({ patient_message: patientMessage });
-  
+
   call.on('data', (response) => {
-    console.log("Received from Doctor:", response.doctor_message);
+    console.log('Received from Doctor:', response.doctor_message);
     callback(response);
   });
-  
+
   call.on('end', () => {
-    console.log("Chat session ended");
+    console.log('Chat session ended');
   });
 
-  call.end();
+  call.on('error', (error) => {
+    console.error('Chat error:', error);
+  });
+
+  const sendUserMessage = (userMessage) => {
+    if (userMessage && call) {
+      call.write({ patient_message: userMessage });
+    }
+  };
+
+  return sendUserMessage;
 };
 
 const fetchVitals = (patientId, callback) => {
-  healthMonitorClient.FetchVitals({ patient_id: patientId }, (err, response) => {
-    if (err) {
+  healthMonitorClient.fetchVitals(patientId)
+    .then(response => {
+      callback(response);
+    })
+    .catch(err => {
       console.error("Error fetching vitals:", err);
       callback(null);
-    } else {
-      callback(response);
-    }
-  });
+    });
 };
 
 
 const streamHeartRate = (callback) => {
   healthMonitorClient.streamHeartRate()
-    .then(response => callback(response))
-    .catch(err => callback(err));
+    .then(response => {
+      callback(response);
+    })
+    .catch(err => {
+      console.error("Error streaming heart rate:", err);
+      callback(null);
+    });
 };
 
+// Stream lab results 
 const streamLabResults = (patientId, callback) => {
-  const call = labTestClient.StreamLabResults({ patient_id: patientId });
-  const results = [];
-
-  call.on('data', (result) => {
-    console.log("Received lab result:", result);
-    results.push(result);
-  });
-
-  call.on('end', () => {
-    console.log("Lab results streaming completed");
-    callback(results);
-  });
-
-  call.on('error', (err) => {
-    console.error("Error streaming lab results:", err);
-    callback(null);
-  });
+  
+  labTestClient.streamLabResults(patientId)
+    .then((results) => {
+      console.log("Lab results received:", results);
+      callback(results);
+    })
+    .catch((err) => {
+      console.error("Error streaming lab results:", err);
+      callback(null);
+    });
 };
 
 const discoverService = (serviceName, callback) => {
