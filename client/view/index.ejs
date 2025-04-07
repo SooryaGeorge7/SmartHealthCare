@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Dashboard</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <h1>Healthcare Monitoring Dashboard</h1>
+
+    <!-- Vitals -->
+    <% if (vitals) { %>
+        <h2>Patient Vitals:</h2>
+        <p><strong>Heart Rate:</strong> <%= vitals.heart_rate %> bpm</p>
+        <p><strong>Oxygen Level:</strong> <%= vitals.oxygen_level %> %</p>
+        <p><strong>Temperature:</strong> <%= vitals.temperature %> °C</p>
+    <% } %>
+
+    <!--Heart Rate Summary -->
+    <% if (heartRateSummary) { %>
+        <h2>Heart Rate Summary:</h2>
+        <p><strong>Average Heart Rate:</strong> <%= heartRateSummary.average_heartrate %> bpm</p>
+        <p><strong>Risk Level:</strong> <%= heartRateSummary.risk_level %></p>
+        <p><strong>Recommendation:</strong> <%= heartRateSummary.recommendation %></p>
+    <% } %>
+
+    <!--Lab Test Results -->
+    <% if (labTestResults) { %>
+        <h2>Lab Test Results:</h2>
+        <ul>
+            <% labTestResults.forEach(function(test) { %>
+                <li><strong><%= test.test_name %>:</strong> <%= test.result %></li>
+            <% }) %>
+        </ul>
+    <% } %>
+
+    <!-- Consultation Chat -->
+    <h2>Consultation Chat</h2>
+    <div id="chat"">
+        <% if (chatMessages.length > 0) { %>
+            <% chatMessages.forEach(function(chat) { %>
+                <p><strong><%= chat.sender %>:</strong> <%= chat.message %></p>
+            <% }) %>
+        <% } else { %>
+            <p>No messages yet.</p>
+        <% } %>
+    </div>
+
+    <!-- Form to send a new chat message -->
+    <h3>Send a Chat Message:</h3>
+    <form action="/send-chat" method="POST">
+        <label for="message">Message:</label>
+        <input type="text" name="message" id="message" required>
+        <button type="submit">Send</button>
+    </form>
+
+</body>
+</html>
