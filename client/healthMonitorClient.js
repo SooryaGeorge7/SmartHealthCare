@@ -1,6 +1,8 @@
 const grpc = require('@grpc/grpc-js');
-const protoLoader = require('@proto-loader');
-const PROTO_PATH = './proto/healthmonitor.proto'; 
+const protoLoader = require('@grpc/proto-loader');
+// const PROTO_PATH = './proto/healthmonitor.proto'; 
+const path = require('path');
+const PROTO_PATH = path.join(__dirname, '../proto/healthmonitor.proto');
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {});
 const healthMonitorProto = grpc.loadPackageDefinition(packageDefinition).healthmonitor;
