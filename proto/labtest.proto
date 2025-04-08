@@ -4,7 +4,7 @@ package labtest;
 
 
 service LabTestService{
-  rpc StreamLabResults(LabtestRequest) returns (Stream LabtestResponse);
+  rpc StreamLabResults(LabtestRequest) returns (stream LabtestResponse);
 }
 
 message LabtestRequest{

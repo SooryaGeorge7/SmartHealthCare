@@ -5,7 +5,7 @@ package consultationchat;
 
 
 service ChatService{
-  rpc ConsultationChat(stream PatientMessage) returns (Stream DoctorMessage);
+  rpc ConsultationChat(stream PatientMessage) returns (stream DoctorMessage);
 }
 
 message PatientMessage{
