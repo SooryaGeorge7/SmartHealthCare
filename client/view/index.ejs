@@ -9,6 +9,13 @@
 <body>
     <h1>Healthcare Monitoring Dashboard</h1>
 
+    <!-- Patient ID Input -->
+    <form action="/" method="GET">
+        <label for="patientId">Enter Patient ID:</label>
+        <input type="text" name="patientId" id="patientId" required value="<%= patientId || '' %>">
+        <button type="submit">Fetch Patient's Health Information</button>
+    </form>
+
     <!-- Vitals -->
     <% if (vitals) { %>
         <h2>Patient Vitals:</h2>
@@ -20,7 +27,7 @@
     <!--Heart Rate Summary -->
     <% if (heartRateSummary) { %>
         <h2>Heart Rate Summary:</h2>
-        <p><strong>Average Heart Rate:</strong> <%= heartRateSummary.average_heartrate %> bpm</p>
+        <p><strong>Current Average Heart Rate:</strong> <%= heartRateSummary.average_heartrate %> bpm</p>
         <p><strong>Risk Level:</strong> <%= heartRateSummary.risk_level %></p>
         <p><strong>Recommendation:</strong> <%= heartRateSummary.recommendation %></p>
     <% } %>
