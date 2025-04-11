@@ -3,35 +3,44 @@ const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
 
 
-const PROTO_PATH = path.join(__dirname,'../proto/consultationchat.proto');
-const packageDefinition = protoLoader.loadSync(PROTO_PATH);
-const consultationChatProto = grpc.loadPackageDefinition(packageDefinition).consultationchat;
+// const PROTO_PATH = path.join(__dirname,'../proto/consultationchat.proto');
+// const packageDefinition = protoLoader.loadSync(PROTO_PATH);
+// const consultationChatProto = grpc.loadPackageDefinition(packageDefinition).consultationchat;
+
+const chatProto = protoLoader.loadSync(path.join(__dirname, '../proto/consultationchat.proto'));
+const chatPackage = grpc.loadPackageDefinition(chatProto).chat;
 
 
 function consultationChat(call) {
   console.log("Consultation Chat Started");
 
-  call.on('data', (patientMessage) => {
-    console.log(`Received from Patient: ${patientMessage.patient_message}`);
-    const doctorResponse = `Doctor: I received your message - "${patientMessage.patient_message}"`;
-
+  call.on('data', (message) => {
+    console.log(message);
+    console.log('Received message from patient', message);
+    const response = {
+      response: 'Hello , Thank you for your message: "' + message.message + '" i will get back to you as soon as i am available.'
+     };
     // Sending response back to patient
-    call.write({ doctor_message: doctorResponse });
+    call.write(response);
   });
 
   call.on('end', () => {
     console.log("Consultation Chat Ended");
     call.end(); 
   });
+
+  call.on('error', (error) => {
+    console.error("gRPC Chat Error:", error);
+  });
 }
 
 const server = new grpc.Server();
-server.addService(consultationChatProto.ChatService.service,{
+server.addService(chatPackage.ChatService.service, {
   ConsultationChat: consultationChat
 });
 
-server.bindAsync('127.0.0.1:50052', grpc.ServerCredentials.createInsecure(), ()=>{
+server.bindAsync('0.0.0.0:50052', grpc.ServerCredentials.createInsecure(), ()=>{
   console.log('Chat service is running');
-  
+  server.start(); 
 
 });

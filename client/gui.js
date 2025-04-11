@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const client = require('./client');  // Importing the client with the integrated streamLabResults
+const client = require('./client');  
 
 const app = express();
 const port = 3000;
@@ -61,18 +61,19 @@ app.get('/', (req, res) => {
 });
 
 app.post('/send-chat', (req, res) => {
-  const userMessage = req.body.message;
-
-  chatMessages.push({ sender: 'User', message: userMessage });
+  const message = req.body.message;
+  console.log("Sending message to gRPC:", message); 
+  chatMessages.push({ sender: 'User', message: message });
+  
 
   const sendMessage = client.consultationChat((response) => {
-    
-    chatMessages.push({ sender: 'Doctor', message: response.doctor_message });
+    console.log("Received doctor response:", response);
+    chatMessages.push({ sender: 'Doctor', message: response });
 
     res.redirect('/');
   });
 
-  sendMessage(userMessage);
+  sendMessage(message);
 });
 
 app.listen(port, () => {
