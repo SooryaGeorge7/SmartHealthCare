@@ -28,7 +28,7 @@ const patientLabResults = {
 
 // Function to stream lab results
 function streamLabResults(call) {
-  const patient_id = call.request.patientid;
+  const patientid = call.request.patientid;
   console.log(`Streaming lab results for Patient ID in labservice: ${patientid}`);
 
   

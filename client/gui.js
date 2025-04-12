@@ -14,34 +14,32 @@ let chatMessages = [];
 
 app.get('/', (req, res) => {
   const patientid = req.query.patientid;
-  console.log("patient id in gui", patientid)
-  let vitals = null;
-  let heartRateSummary = null;
-  let labTestResults = [];  
+  
+  
   let errorMessage = null;
 
   if (patientid) {
-    client.fetchVitals(patientid, (vitalsData) => {
-      if (vitalsData) {
-        vitals = vitalsData;
-        console.log(vitals);
+    client.fetchVitals(patientid, (vitals) => {
+      if (vitals) {
+        console.log("vitals",vitals);
       } else {
         errorMessage = `No vitals found for Patient ID in gui: ${patientid}`;
       }
-      console.log(heartRateSummary);
       // Stream heart rate data
-      client.streamHeartRate((heartRateSummaryData) => {
-        heartRateSummary = heartRateSummaryData;
-        console.log(heartRateSummaryData);
-        
+      client.streamHeartRate((summary) => {
+        console.log("heartRateSummaryData:",summary);
+        if (!summary) {
+          res.send("no summary found.");
+          
+      }
         client.streamLabResults(patientid, (labResults) => {
           labTestResults = labResults;
 
          
           res.render('index', {
             patientid: patientid,
-            vitals: vitals,
-            heartRateSummary: heartRateSummary,
+            vitals,
+            summary,
             labTestResults: labTestResults,  
             chatMessages: chatMessages,
             errorMessage: errorMessage
@@ -54,7 +52,7 @@ app.get('/', (req, res) => {
     res.render('index', {
       patientid: '',
       vitals: null,
-      heartRateSummary: null,
+      summary: null,
       labTestResults: [],
       chatMessages: chatMessages,
       errorMessage: null
