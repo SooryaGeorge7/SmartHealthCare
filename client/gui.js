@@ -19,35 +19,49 @@ app.get('/', (req, res) => {
   let errorMessage = null;
 
   if (patientid) {
-    client.fetchVitals(patientid, (vitals) => {
-      if (vitals) {
-        console.log("vitals",vitals);
-      } else {
-        errorMessage = `No vitals found for Patient ID in gui: ${patientid}`;
-      }
-      // Stream heart rate data
-      client.streamHeartRate((summary) => {
-        console.log("heartRateSummaryData:",summary);
-        if (!summary) {
-          res.send("no summary found.");
+      // Discover healthMonitor service first
+      client.discoverService('HealthMonitorService', (HealthMonitorService) => {
+        if (!HealthMonitorService) {
+            res.send("Health Monitor Service not found.");
+            return;
+        }
+          client.fetchVitals(patientid, (vitals) => {
+              if (vitals) {
+                 console.log("vitals",vitals);
+              } else {
+                 errorMessage = `No vitals found for Patient ID in gui: ${patientid}`;
+              }
+              // Stream heart rate data
+              client.streamHeartRate((summary) => {
+                 console.log("heartRateSummaryData:",summary);
+                 if (!summary) {
+                    res.send("no summary found.");
           
-      }
-        client.streamLabResults(patientid, (result) => {
-          if (!result) {
-            console.log("Lab Test Results:", result);
-            res.send("no lab results");
-          }
+              }
+              // Discover labTestService after fetching vitals
+              client.discoverService('LabTestService', (LabTestService) => {
+                if (!LabTestService) {
+                    res.send("Lab Test Service not found.");
+                    return;
+                }
+                    client.streamLabResults(patientid, (result) => {
+                      if (!result) {
+                           console.log("Lab Test Results:", result);
+                           res.send("no lab results");
+                       }
          
-          res.render('index', {
-            patientid: patientid,
-            vitals,
-            summary,
-            result,  
-            chatMessages: chatMessages,
-            errorMessage: errorMessage
-          });
+                        res.render('index', {
+                            patientid: patientid,
+                            vitals,
+                            summary,
+                            result,  
+                            chatMessages: chatMessages,
+                           errorMessage: errorMessage
+                       });
+                  });
+               });
+           });
         });
-      });
     });
   } else {
 
@@ -66,16 +80,22 @@ app.post('/send-chat', (req, res) => {
   const message = req.body.message;
   console.log("Sending message to gRPC:", message); 
   chatMessages.push({ sender: 'User', message: message });
+  
+  client.discoverService('ChatService', (ChatService) => {
+    if (!ChatService) {
+      res.send("Chat Monitor Service not found.");
+      return;
+    }
 
+    const sendMessage = client.consultationChat((response) => {
+      console.log("Received doctor response:", response);
+      chatMessages.push({ sender: 'Doctor', message: response });
 
-  const sendMessage = client.consultationChat((response) => {
-    console.log("Received doctor response:", response);
-    chatMessages.push({ sender: 'Doctor', message: response });
+      res.redirect('/');
+    });
 
-    res.redirect('/');
+    sendMessage(message);
   });
-
-  sendMessage(message);
 });
 
 app.listen(port, () => {
