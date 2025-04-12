@@ -13,31 +13,33 @@ app.use(express.static('public'));
 let chatMessages = [];
 
 app.get('/', (req, res) => {
-  const patientId = req.query.patientId;
+  const patientid = req.query.patientid;
+  console.log("patient id in gui", patientid)
   let vitals = null;
   let heartRateSummary = null;
   let labTestResults = [];  
   let errorMessage = null;
 
-  if (patientId) {
-    client.fetchVitals(patientId, (vitalsData) => {
+  if (patientid) {
+    client.fetchVitals(patientid, (vitalsData) => {
       if (vitalsData) {
         vitals = vitalsData;
+        console.log(vitals);
       } else {
-        errorMessage = `No vitals found for Patient ID: ${patientId}`;
+        errorMessage = `No vitals found for Patient ID in gui: ${patientid}`;
       }
-
+      console.log(heartRateSummary);
       // Stream heart rate data
       client.streamHeartRate((heartRateSummaryData) => {
         heartRateSummary = heartRateSummaryData;
-
+        console.log(heartRateSummaryData);
         
-        client.streamLabResults(patientId, (labResults) => {
+        client.streamLabResults(patientid, (labResults) => {
           labTestResults = labResults;
 
          
           res.render('index', {
-            patientId: patientId,
+            patientid: patientid,
             vitals: vitals,
             heartRateSummary: heartRateSummary,
             labTestResults: labTestResults,  
@@ -50,7 +52,7 @@ app.get('/', (req, res) => {
   } else {
 
     res.render('index', {
-      patientId: '',
+      patientid: '',
       vitals: null,
       heartRateSummary: null,
       labTestResults: [],
@@ -64,7 +66,7 @@ app.post('/send-chat', (req, res) => {
   const message = req.body.message;
   console.log("Sending message to gRPC:", message); 
   chatMessages.push({ sender: 'User', message: message });
-  
+
 
   const sendMessage = client.consultationChat((response) => {
     console.log("Received doctor response:", response);

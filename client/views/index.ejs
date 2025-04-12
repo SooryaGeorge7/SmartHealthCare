@@ -11,24 +11,24 @@
 
     <!-- Patient ID Input -->
     <form action="/" method="GET">
-        <label for="patientId">Enter Patient ID:</label>
-        <input type="text" name="patientId" id="patientId" required value="<%= patientId || '' %>">
+        <label for="patientid">Enter Patient ID:</label>
+        <input type="text" name="patientid" id="patientid" required value="<%= patientid || '' %>">
         <button type="submit">Fetch Patient's Health Information</button>
     </form>
 
     <!-- Vitals -->
     <% if (vitals) { %>
         <h2>Patient Vitals:</h2>
-        <p><strong>Heart Rate:</strong> <%= vitals.heart_rate %> bpm</p>
-        <p><strong>Oxygen Level:</strong> <%= vitals.oxygen_level %> %</p>
+        <p><strong>Heart Rate:</strong> <%= vitals.heartrate %> bpm</p>
+        <p><strong>Oxygen Level:</strong> <%= vitals.oxygenlevel %> %</p>
         <p><strong>Temperature:</strong> <%= vitals.temperature %> °C</p>
     <% } %>
 
     <!--Heart Rate Summary -->
     <% if (heartRateSummary) { %>
         <h2>Heart Rate Summary:</h2>
-        <p><strong>Current Average Heart Rate:</strong> <%= heartRateSummary.average_heartrate %> bpm</p>
-        <p><strong>Risk Level:</strong> <%= heartRateSummary.risk_level %></p>
+        <p><strong>Current Average Heart Rate:</strong> <%= heartRateSummary.averageheartrate %> bpm</p>
+        <p><strong>Risk Level:</strong> <%= heartRateSummary.risklevel %></p>
         <p><strong>Recommendation:</strong> <%= heartRateSummary.recommendation %></p>
     <% } %>
 
@@ -37,7 +37,7 @@
         <h2>Lab Test Results:</h2>
         <ul>
             <% labTestResults.forEach(function(test) { %>
-                <li><strong><%= test.test_name %>:</strong> <%= test.result %></li>
+                <li><strong><%= test.testname %>:</strong> <%= test.result %></li>
             <% }) %>
         </ul>
     <% } %>

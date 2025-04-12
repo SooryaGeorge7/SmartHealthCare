@@ -2,15 +2,15 @@ syntax = "proto3";
 
 package discovery;
 
-service DiscoveryService{
-  rpc DiscoverService(ServiceRequest) returns (ServiceResponse);
+service DiscoveryService {
+  rpc DiscoverService (ServiceRequest) returns (ServiceResponse);
 }
 
-message ServiceRequest{
+message ServiceRequest {
   string serviceName =1;
 
 }
 
-message ServiceResponse{
+message ServiceResponse {
   string address =1;
 }

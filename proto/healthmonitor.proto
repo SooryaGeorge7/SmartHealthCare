@@ -2,21 +2,21 @@ syntax = "proto3";
 
 package healthmonitor;
 
-service HealthMonitorService{
+service HealthMonitorService {
   //simple rpc
-  rpc FetchVitals(VitalsRequest) returns (VitalsResponse);
+  rpc FetchVitals (VitalsRequest) returns (VitalsResponse);
   
   //client streaming rpc
-  rpc StreamHeartRate(stream HeartRateData) returns (HeartRateSummary);
+  rpc StreamHeartRate (stream HeartRateData) returns (HeartRateSummary);
 }
 
-message VitalsRequest{
-  string patient_id =1;
+message VitalsRequest {
+  string patientid =1;
 }
 
 message VitalsResponse {
-  int32 heart_rate =1;
-  int32 oxygen_level =2;
+  int32 heartrate =1;
+  int32 oxygenlevel =2;
   int32 temperature =3;
 }
 
@@ -25,7 +25,7 @@ message HeartRateData {
 }
 
 message HeartRateSummary {
-  int32 average_heartrate =1;
-  string risk_level =2;
+  int32 averageheartrate =1;
+  string risklevel =2;
   string recommendation =3;
 }

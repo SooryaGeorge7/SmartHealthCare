@@ -9,17 +9,22 @@ const chatClient = new chatPackage.ChatService('localhost:50052', grpc.credentia
 // const HEALTHMONITOR_PROTO_PATH = path.join(__dirname, '../proto/healthmonitor.proto');
 // const LABTEST_PROTO_PATH = path.join(__dirname, '../proto/labtest.proto');
 //const CONSULTATIONCHAT_PROTO_PATH = path.join(__dirname, '../proto/consultationchat.proto');
-const DISCOVERY_PROTO_PATH = path.join(__dirname, '../proto/discovery.proto');
+//const DISCOVERY_PROTO_PATH = path.join(__dirname, '../proto/discovery.proto');
 
 // const healthMonitorProto = grpc.loadPackageDefinition(protoLoader.loadSync(HEALTHMONITOR_PROTO_PATH)).healthmonitor;
 // const labTestProto = grpc.loadPackageDefinition(protoLoader.loadSync(LABTEST_PROTO_PATH)).labtest;
 //const consultationChatProto = grpc.loadPackageDefinition(protoLoader.loadSync(CONSULTATIONCHAT_PROTO_PATH)).consultationchat;
-const discoveryProto = grpc.loadPackageDefinition(protoLoader.loadSync(DISCOVERY_PROTO_PATH)).discovery;
+//const discoveryProto = grpc.loadPackageDefinition(protoLoader.loadSync(DISCOVERY_PROTO_PATH)).discovery;
 
 const healthMonitorClient =require('./healthMonitorClient');
 const labTestClient = require('./labTestclient')
 //const chatClient = new consultationChatProto.ChatService('localhost:50052', grpc.credentials.createInsecure());
-const discoveryClient = new discoveryProto.DiscoveryService('localhost:50050', grpc.credentials.createInsecure());
+//const discoveryClient = new discoveryProto.DiscoveryService('localhost:50050', grpc.credentials.createInsecure());
+
+
+const discoveryProto = protoLoader.loadSync(path.join(__dirname, '../proto/discovery.proto'));
+const discoveryPackage = grpc.loadPackageDefinition(discoveryProto).discovery;
+const discoveryClient = new discoveryPackage.DiscoveryService('localhost:50050', grpc.credentials.createInsecure());
 
 
 const consultationChat = (callback) => {
@@ -51,13 +56,14 @@ const consultationChat = (callback) => {
   return sendUserMessage;
 };
 
-const fetchVitals = (patientId, callback) => {
-  healthMonitorClient.fetchVitals(patientId)
+const fetchVitals = (patientid, callback) => {
+  healthMonitorClient.fetchVitals(patientid)
     .then(response => {
+      console.log("fetch vitals in client",response);
       callback(response);
     })
     .catch(err => {
-      console.error("Error fetching vitals:", err);
+      console.error("Error fetching vitals in client:", err);
       callback(null);
     });
 };
@@ -66,6 +72,7 @@ const fetchVitals = (patientId, callback) => {
 const streamHeartRate = (callback) => {
   healthMonitorClient.streamHeartRate()
     .then(response => {
+      console.log("heartratesummary in client",response);
       callback(response);
     })
     .catch(err => {
@@ -75,9 +82,9 @@ const streamHeartRate = (callback) => {
 };
 
 // Stream lab results 
-const streamLabResults = (patientId, callback) => {
-  
-  labTestClient.streamLabResults(patientId)
+const streamLabResults = (patientid, callback) => {
+  console.log("patient id in client",patientid)
+  labTestClient.streamLabResults(patientid)
     .then((results) => {
       console.log("Lab results received:", results);
       callback(results);

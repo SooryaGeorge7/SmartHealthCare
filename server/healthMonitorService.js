@@ -2,28 +2,30 @@ const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
 
+const healthMonitorProto = protoLoader.loadSync(path.join(__dirname, '../proto/healthmonitor.proto'));
+const healthPackage = grpc.loadPackageDefinition(healthMonitorProto).healthmonitor;
 
-const PROTO_PATH = path.join(__dirname,'../proto/healthmonitor.proto');
-const packageDefinition = protoLoader.loadSync(PROTO_PATH);
-const healthMonitorProto = grpc.loadPackageDefinition(packageDefinition).healthmonitor;
+//const PROTO_PATH = path.join(__dirname,'../proto/healthmonitor.proto');
+//const packageDefinition = protoLoader.loadSync(PROTO_PATH);
+//const healthMonitorProto = grpc.loadPackageDefinition(packageDefinition).healthmonitor;
 
 const patientVitals = {
-  "P23": { heart_rate: 80, oxygen_level: 98, temperature: 36 },
-  "P66": { heart_rate: 75, oxygen_level: 95, temperature: 37 },
-  "P89": { heart_rate: 90, oxygen_level: 97, temperature: 36.5 }
+  "P23": { heartrate: 80, oxygenlevel: 98, temperature: 36 },
+  "P66": { heartrate: 75, oxygenlevel: 95, temperature: 37 },
+  "P89": { heartrate: 90, oxygenlevel: 97, temperature: 36.5 }
 };
 
 // Server function for FetchVitals
 function fetchVitals(call, callback) {
-  const patientId = call.request.patient_id;
-  const vitals = patientVitals[patientId];
-
+  const patientid = call.request.patientid;
+  const vitals = patientVitals[patientid];
+  console.log("patientid in healthmonitor service",patientid);
   if (vitals) {
     callback(null, vitals); 
   } else {
     callback({
       code: grpc.status.NOT_FOUND,
-      message: `No vitals found for patient ID ${patientId}`
+      message: `No vitals found for patient ID ${patientid}`
     });
   }
 }
@@ -48,34 +50,35 @@ function streamHeartRate(call, callback) {
       });
     }
 
-    const avgHeartRate = Math.round(totalHeartRate / count);
-    let riskLevel, recommendation;
+    const averageheartrate = Math.round(totalHeartRate / count);
+    let risklevel, recommendation;
 
     // Determine risk level based on average heart rate
-    if (avgHeartRate < 60) {
-      riskLevel = "Low";
+    if (averageheartrate < 60) {
+      risklevel = "Low";
       recommendation = "Monitor if you feel dizzy or weak.";
-    } else if (avgHeartRate >= 60 && avgHeartRate <= 100) {
-      riskLevel = "Normal";
+    } else if (averageheartrate >= 60 && averageheartrate <= 100) {
+      risklevel = "Normal";
       recommendation = "Maintain a healthy lifestyle.";
     } else {
-      riskLevel = "High";
+      risklevel = "High";
       recommendation = "Consult a doctor for further evaluation.";
     }
 
-    console.log(`Final Summary -> Avg Heart Rate: ${avgHeartRate}, Risk: ${riskLevel}`);
+    console.log(`Final Summary -> Avg Heart Rate: ${average_heartrate},${recommendation} Risk: ${risk_level}`);
 
     // Send summary back to client
     callback(null, {
-      average_heartrate: avgHeartRate,
-      risk_level: riskLevel,
+      averageheartrate: averageheartrate,
+      risklevel: risklevel,
       recommendation: recommendation
+      
     });
   });
 }
 
 const server = new grpc.Server();
-server.addService(healthMonitorProto.HealthMonitorService.service,{
+server.addService(healthPackage.HealthMonitorService.service, {
   FetchVitals : fetchVitals,
   StreamHeartRate : streamHeartRate
 
@@ -83,6 +86,7 @@ server.addService(healthMonitorProto.HealthMonitorService.service,{
 
 server.bindAsync('127.0.0.1:50051', grpc.ServerCredentials.createInsecure(), ()=>{
   console.log('health monitor service is running');
+  
   
 
 });

@@ -3,16 +3,16 @@ syntax = "proto3";
 package labtest;
 
 
-service LabTestService{
-  rpc StreamLabResults(LabtestRequest) returns (stream LabtestResponse);
+service LabTestService {
+  rpc StreamLabResults (LabtestRequest) returns (stream LabtestResponse);
 }
 
-message LabtestRequest{
-  string patient_id = 1;
+message LabtestRequest {
+  string patientid = 1;
 }
 
 message LabtestResponse {
-  string test_name =1;
+  string testname = 1;
   string result = 2;
 }
 

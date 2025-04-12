@@ -11,7 +11,7 @@ const discoveryProto = grpc.loadPackageDefinition(packageDefinition).discovery;
 const services = {
   "HealthMonitorService": "localhost:50051",
   "ChatService":"localhost:50052",
-  "LabTestService":"localhost:50053,"
+  "LabTestService":"localhost:50053"
 };
 
 const discoverService = (call,callback) =>{
@@ -27,7 +27,7 @@ const discoverService = (call,callback) =>{
   }
 };
 
-const service = new grpc.Server();
+const server= new grpc.Server();
 server.addService(discoveryProto.DiscoveryService.service,{
   DiscoverService : discoverService
 });
