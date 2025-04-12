@@ -9,16 +9,16 @@ const healthPackage = grpc.loadPackageDefinition(healthMonitorProto).healthmonit
 //const packageDefinition = protoLoader.loadSync(PROTO_PATH);
 //const healthMonitorProto = grpc.loadPackageDefinition(packageDefinition).healthmonitor;
 
-const patientVitals = {
-  "P23": { heartrate: 80, oxygenlevel: 98, temperature: 36 },
-  "P66": { heartrate: 75, oxygenlevel: 95, temperature: 37 },
-  "P89": { heartrate: 90, oxygenlevel: 97, temperature: 36.5 }
-};
+const patientVitals = [
+   {patientid: "P23", heartrate: 80, oxygenlevel: 98, temperature: 36 },
+   {patientid: "P66", heartrate: 75, oxygenlevel: 95, temperature: 37 },
+   {patientid: "P89", heartrate: 90, oxygenlevel: 97, temperature: 36.5 }
+];
 
 // Server function for FetchVitals
 function fetchVitals(call, callback) {
   const patientid = call.request.patientid;
-  const vitals = patientVitals[patientid];
+  const vitals = patientVitals.find(p => p.patientid === patientid);
   console.log("patientid in healthmonitor service",patientid);
   if (vitals) {
     callback(null, vitals); 
@@ -64,16 +64,16 @@ function streamHeartRate(call, callback) {
       risklevel = "High";
       recommendation = "Consult a doctor for further evaluation.";
     }
-
-    console.log(`Final Summary -> Avg Heart Rate: ${average_heartrate},${recommendation} Risk: ${risk_level}`);
-
-    // Send summary back to client
-    callback(null, {
+    const summary = {
       averageheartrate: averageheartrate,
       risklevel: risklevel,
       recommendation: recommendation
       
-    });
+    }
+    console.log(`Final Summary -> Avg Heart Rate: ${averageheartrate},${recommendation} Risk: ${risklevel}`);
+
+    // Send summary back to client
+    callback(null, summary);
   });
 }
 
