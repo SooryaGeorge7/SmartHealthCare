@@ -15,6 +15,11 @@
         <input type="text" name="patientid" id="patientid" required value="<%= patientid || '' %>">
         <button type="submit">Fetch Patient's Health Information</button>
     </form>
+    <% if (errorMessage) { %>
+        <div id="error">
+            <p><%= errorMessage %></p>
+        </div>
+    <% } %>
 
     <!-- Vitals -->
     <% if (vitals) { %>
@@ -22,6 +27,8 @@
         <p><strong>Heart Rate:</strong> <%= vitals.heartrate %> bpm</p>
         <p><strong>Oxygen Level:</strong> <%= vitals.oxygenlevel %> %</p>
         <p><strong>Temperature:</strong> <%= vitals.temperature %> °C</p>
+    <% } else if (errorMessage && !vitals) { %>
+        <div >No vitals data available for this patient.</div>
     <% } %>
 
     <!--Heart Rate Summary -->
@@ -30,16 +37,20 @@
         <p><strong>Current Average Heart Rate:</strong> <%= summary.averageheartrate %> bpm</p>
         <p><strong>Risk Level:</strong> <%= summary.risklevel %></p>
         <p><strong>Recommendation:</strong> <%= summary.recommendation %></p>
+    <% } else if (errorMessage && !summary) { %>
+        <div >No heart rate summary available.</div>
     <% } %>
 
     <!--Lab Test Results -->
-    <% if (result) { %>
+    <% if (result  && result.length > 0) { %>
         <h2>Lab Test Results:</h2>
         <ul>
             <% result.forEach(function(labtest) { %>
                 <li><strong><%= labtest.testname %>:</strong> <%= labtest.result %></li>
             <% }) %>
         </ul>
+    <% } else if (errorMessage && !result) { %>
+        <div>No lab test results found for this patient.</div>
     <% } %>
 
     <!-- Consultation Chat -->
