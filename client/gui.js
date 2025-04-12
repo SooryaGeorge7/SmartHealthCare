@@ -32,15 +32,17 @@ app.get('/', (req, res) => {
           res.send("no summary found.");
           
       }
-        client.streamLabResults(patientid, (labResults) => {
-          labTestResults = labResults;
-
+        client.streamLabResults(patientid, (result) => {
+          if (!result) {
+            console.log("Lab Test Results:", result);
+            res.send("no lab results");
+          }
          
           res.render('index', {
             patientid: patientid,
             vitals,
             summary,
-            labTestResults: labTestResults,  
+            result,  
             chatMessages: chatMessages,
             errorMessage: errorMessage
           });
@@ -53,7 +55,7 @@ app.get('/', (req, res) => {
       patientid: '',
       vitals: null,
       summary: null,
-      labTestResults: [],
+      result: [],
       chatMessages: chatMessages,
       errorMessage: null
     });

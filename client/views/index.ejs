@@ -33,11 +33,11 @@
     <% } %>
 
     <!--Lab Test Results -->
-    <% if (labTestResults) { %>
+    <% if (result) { %>
         <h2>Lab Test Results:</h2>
         <ul>
-            <% labTestResults.forEach(function(test) { %>
-                <li><strong><%= test.testname %>:</strong> <%= test.result %></li>
+            <% result.forEach(function(labtest) { %>
+                <li><strong><%= labtest.testname %>:</strong> <%= labtest.result %></li>
             <% }) %>
         </ul>
     <% } %>
