@@ -96,7 +96,7 @@ const streamLabResults = (patientid, callback) => {
 };
 
 const discoverService = (serviceName, callback) => {
-  discoveryClient.DiscoveryService({
+  discoveryClient.DiscoverService({
     serviceName: serviceName
   }, (err, response) => {
     if (err) {
