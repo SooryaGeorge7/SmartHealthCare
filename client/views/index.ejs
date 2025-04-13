@@ -12,7 +12,8 @@
     <!-- Patient ID Input -->
     <form action="/" method="GET">
         <label for="patientid">Enter Patient ID:</label>
-        <input type="text" name="patientid" id="patientid" required value="<%= patientid || '' %>">
+        <input type="text" name="patientid" id="patientid" pattern="[a-zA-Z0-9]{1,5}" 
+        maxlength="5" required value="<%= patientid || '' %>">
         <button type="submit">Fetch Patient's Health Information</button>
     </form>
     
