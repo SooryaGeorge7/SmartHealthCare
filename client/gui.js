@@ -14,8 +14,6 @@ let chatMessages = [];
 
 app.get('/', (req, res) => {
   const patientid = req.query.patientid;
-  
-  
   let errorMessage = null;
 
   if (patientid) {
@@ -27,9 +25,9 @@ app.get('/', (req, res) => {
         }
           client.fetchVitals(patientid, (vitals) => {
               if (vitals) {
-                 console.log("vitals",vitals);
+                 console.log("vitals in gui:",vitals);
               } else {
-                 errorMessage = `No vitals found for Patient ID in gui: ${patientid}`;
+                 errorMessage = `No vitals found for Patient ID in gui`;
               }
               // Stream heart rate data
               client.streamHeartRate((summary) => {
@@ -45,7 +43,7 @@ app.get('/', (req, res) => {
                     return;
                 }
                     client.streamLabResults(patientid, (result) => {
-                      if (!result) {
+                      if (!result || result.length===0) {
                            console.log("Lab Test Results:", result);
                            res.send("no lab results");
                        }
@@ -80,7 +78,7 @@ app.post('/send-chat', (req, res) => {
   const message = req.body.message;
   console.log("Sending message to gRPC:", message); 
   chatMessages.push({ sender: 'User', message: message });
-  
+  const patientid = req.body.patientid;
   client.discoverService('ChatService', (ChatService) => {
     if (!ChatService) {
       res.send("Chat Monitor Service not found.");
@@ -90,8 +88,11 @@ app.post('/send-chat', (req, res) => {
     const sendMessage = client.consultationChat((response) => {
       console.log("Received doctor response:", response);
       chatMessages.push({ sender: 'Doctor', message: response });
-
-      res.redirect('/');
+      if (patientid) {
+        res.redirect(`/?patientid=${patientid}`);
+      } else {
+        res.redirect('/');
+      }
     });
 
     sendMessage(message);
