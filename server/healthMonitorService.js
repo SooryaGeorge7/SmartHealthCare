@@ -14,9 +14,26 @@ const patientVitals = [
    {patientid: "P66", heartrate: 75, oxygenlevel: 95, temperature: 37 },
    {patientid: "P89", heartrate: 90, oxygenlevel: 97, temperature: 36.5 }
 ];
+const checkApiKey = (call, callback) => {
+  const metadata = call.metadata.get('api-key');
+
+  if (metadata && metadata[0] === process.env.API_KEY) {
+    callback(null, { success: true });
+    console.log("api sucessful");
+  } else {
+    callback({
+      code: grpc.status.UNAUTHENTICATED,
+      details: 'Invalid API Key'
+    });
+  }
+};
 
 // Server function for FetchVitals
 function fetchVitals(call, callback) {
+  checkApiKey(call, (err) => {
+    if (err) {
+      return callback(err);
+    }
   const patientid = call.request.patientid;
   const vitals = patientVitals.find(p => p.patientid === patientid);
   console.log("patientid in healthmonitor service",patientid);
@@ -27,10 +44,14 @@ function fetchVitals(call, callback) {
       code: grpc.status.NOT_FOUND,
       message: `No vitals found for patient ID ${patientid}`
     });
-  }
+  }});
 }
 // StreamHeartRate - Client-Streaming RPC
 function streamHeartRate(call, callback) {
+  checkApiKey(call, (err) => {
+    if (err) {
+      return callback(err);
+    }
   let totalHeartRate = 0;
   let count = 0;
 
@@ -75,6 +96,7 @@ function streamHeartRate(call, callback) {
     // Send summary back to client
     callback(null, summary);
   });
+});
 }
 
 const server = new grpc.Server();

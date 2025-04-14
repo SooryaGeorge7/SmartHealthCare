@@ -10,10 +10,25 @@ const path = require('path');
 const chatProto = protoLoader.loadSync(path.join(__dirname, '../proto/consultationchat.proto'));
 const chatPackage = grpc.loadPackageDefinition(chatProto).chat;
 
+const checkApiKey = (call, callback) => {
+  const metadata = call.metadata.get('api-key');
 
+  if (metadata && metadata[0] === process.env.API_KEY) {
+    callback(null, { success: true });
+    console.log("api sucessful");
+  } else {
+    callback({
+      code: grpc.status.UNAUTHENTICATED,
+      details: 'Invalid API Key'
+    });
+  }
+};
 function consultationChat(call) {
   console.log("Consultation Chat Started");
-
+  checkApiKey(call, (err) => {
+    if (err) {
+      return callback(err);
+    }
   call.on('data', (message) => {
     console.log(message);
     console.log('Received message from patient', message);
@@ -32,7 +47,9 @@ function consultationChat(call) {
   call.on('error', (error) => {
     console.error("gRPC Chat Error:", error);
   });
+});
 }
+
 
 const server = new grpc.Server();
 server.addService(chatPackage.ChatService.service, {

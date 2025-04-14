@@ -1,7 +1,8 @@
 const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
-
+const dotenv = require('dotenv');
+dotenv.config();
 const chatProto = protoLoader.loadSync(path.join(__dirname, '../proto/consultationchat.proto'));
 const chatPackage = grpc.loadPackageDefinition(chatProto).chat;
 const chatClient = new chatPackage.ChatService('localhost:50052', grpc.credentials.createInsecure());
@@ -26,10 +27,14 @@ const discoveryProto = protoLoader.loadSync(path.join(__dirname, '../proto/disco
 const discoveryPackage = grpc.loadPackageDefinition(discoveryProto).discovery;
 const discoveryClient = new discoveryPackage.DiscoveryService('localhost:50050', grpc.credentials.createInsecure());
 
-
+const createMetadata = () => {
+  return {
+    'api-key': process.env.API_KEY
+  };
+};
 const consultationChat = (callback) => {
   
-  const call = chatClient.ConsultationChat();
+  const call = chatClient.ConsultationChat({}, {metadata: createMetadata()});
 
   call.on('data', (response) => {
     console.log('Received from Doctor:', response);
@@ -57,7 +62,7 @@ const consultationChat = (callback) => {
 };
 
 const fetchVitals = (patientid, callback) => {
-  healthMonitorClient.fetchVitals(patientid)
+  healthMonitorClient.fetchVitals(patientid, {metadata: createMetadata()})
     .then(response => {
       console.log("fetch vitals in client",response);
       callback(response);
@@ -70,7 +75,7 @@ const fetchVitals = (patientid, callback) => {
 
 
 const streamHeartRate = (callback) => {
-  healthMonitorClient.streamHeartRate()
+  healthMonitorClient.streamHeartRate({}, {metadata: createMetadata()})
     .then(response => {
       console.log("heartratesummary in client",response);
       callback(response);
@@ -84,7 +89,7 @@ const streamHeartRate = (callback) => {
 // Stream lab results 
 const streamLabResults = (patientid, callback) => {
   console.log("patient id in client",patientid)
-  labTestClient.streamLabResults(patientid)
+  labTestClient.streamLabResults(patientid, {metadata: createMetadata()})
     .then((results) => {
       console.log("Lab results received:", results);
       callback(results);
@@ -98,7 +103,7 @@ const streamLabResults = (patientid, callback) => {
 const discoverService = (serviceName, callback) => {
   discoveryClient.DiscoverService({
     serviceName: serviceName
-  }, (err, response) => {
+  },{ metadata: createMetadata() }, (err, response) => {
     if (err) {
       console.log("error discovering service", err);
       callback(null);

@@ -25,9 +25,25 @@ const patientLabResults = {
     { testname: "X-Ray", result: "No issues detected" }
   ]
 };
+const checkApiKey = (call, callback) => {
+  const metadata = call.metadata.get('api-key');
 
+  if (metadata && metadata[0] === process.env.API_KEY) {
+    callback(null, { success: true });
+    console.log("api sucessful");
+  } else {
+    callback({
+      code: grpc.status.UNAUTHENTICATED,
+      details: 'Invalid API Key'
+    });
+  }
+};
 // Function to stream lab results
 function streamLabResults(call) {
+  checkApiKey(call, (err) => {
+    if (err) {
+      return callback(err);
+    }
   const patientid = call.request.patientid;
   console.log(`Streaming lab results for Patient ID in labservice: ${patientid}`);
 
@@ -51,6 +67,7 @@ function streamLabResults(call) {
       }
     }, index * 1000);
   });
+});
 }
 
 const server = new grpc.Server();

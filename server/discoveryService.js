@@ -14,7 +14,25 @@ const services = {
   "LabTestService":"localhost:50053"
 };
 
+const checkApiKey = (call, callback) => {
+  const metadata = call.metadata.get('api-key');
+
+  if (metadata && metadata[0] === process.env.API_KEY) {
+    callback(null, { success: true });
+    console.log("api sucessful");
+  } else {
+    callback({
+      code: grpc.status.UNAUTHENTICATED,
+      details: 'Invalid API Key'
+    });
+  }
+};
+
 const discoverService = (call,callback) =>{
+  checkApiKey(call, (err) => {
+    if (err) {
+      return callback(err);
+    }
   const serviceName = call.request.serviceName;
   const address = services[serviceName];
   if(address){
@@ -25,6 +43,7 @@ const discoverService = (call,callback) =>{
       details:"service not found"
     });
   }
+});
 };
 
 const server= new grpc.Server();
