@@ -16,7 +16,6 @@
         maxlength="5" required value="<%= patientid || '' %>">
         <button type="submit">Fetch Patient's Health Information</button>
     </form>
-    
 
     <!-- Vitals -->
     <% if (vitals) { %>
@@ -62,7 +61,7 @@
         <% } %>
     </div>
 
-    <!-- Form to send a new chat message -->
+    <!--  chat message box -->
     <h3>Send a Chat Message:</h3>
     <form action="/send-chat" method="POST">
         <input type="hidden" name="patientid" value="<%= patientid %>">
