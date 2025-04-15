@@ -24,17 +24,17 @@
         <p><strong>Oxygen Level:</strong> <%= vitals.oxygenlevel %> %</p>
         <p><strong>Temperature:</strong> <%= vitals.temperature %> °C</p>
     <% } else if (errorMessage && !vitals) { %>
-        <div class="error">No vitals data available for this patient.</div>
+        <p class="error">No vitals data available for this patient.</p>
     <% } %>
 
     <!--Heart Rate Summary -->
-    <% if (summary) { %>
+    <% if (summary && vitals) { %>
         <h2>Heart Rate Summary:</h2>
         <p><strong>Current Average Heart Rate:</strong> <%= summary.averageheartrate %> bpm</p>
         <p><strong>Risk Level:</strong> <%= summary.risklevel %></p>
         <p><strong>Recommendation:</strong> <%= summary.recommendation %></p>
-    <% } else if (errorMessage && !summary) { %>
-        <div class="error">No heart rate summary available.</div>
+    <% } else  { %>
+        <p class="error">No heart rate summary available.</p>
     <% } %>
 
     <!--Lab Test Results -->
@@ -45,8 +45,8 @@
                 <li><strong><%= labtest.testname %>:</strong> <%= labtest.result %></li>
             <% }) %>
         </ul>
-    <% } else if (errorMessage && !result) { %>
-        <div class="error">No lab test results found for this patient.</div>
+    <% } else if (errorMessage && result.length===0) { %>
+        <p class="error">No lab test results found for this patient.</p>
     <% } %>
 
     <!-- Consultation Chat -->

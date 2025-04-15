@@ -29,7 +29,7 @@ const createMetadata = () => {
 // Bidirectional chat that sends messages after getting replies by using chat grpc service
 const consultationChat = (callback) => {
   const call = chatClient.ConsultationChat({}, {metadata: createMetadata()});
-
+  console.log(" Chat session started. Waiting for doctor response  from service.js");
   // handle response from doctor(in this project- this comes from chat service)
   call.on('data', (response) => {
     console.log('Received from Doctor:', response.response);
@@ -103,6 +103,7 @@ const streamLabResults = (patientid, callback) => {
 
 // this discovers services dynamically by their name
 const discoverService = (serviceName, callback) => {
+  console.log(`Discovering service: ${serviceName}`);
   discoveryClient.DiscoverService({
     serviceName: serviceName
   },{ metadata: createMetadata() }, (err, response) => {
@@ -110,11 +111,13 @@ const discoverService = (serviceName, callback) => {
       console.log("error discovering service", err);
       callback(null);
     } else {
+      console.log(`Service "${serviceName}" found at address: ${response.address}`);
       callback(response);
     }
   });
 };
 
+//export functions
 module.exports = {
   discoverService,
   fetchVitals,
