@@ -4,14 +4,16 @@ const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
 
 //create lab test client
-const labtestProto = protoLoader.loadSync(path.join(__dirname, '../proto/labtest.proto'));
-const labtestPackage = grpc.loadPackageDefinition(labtestProto).labtest;
-const labtestClient = new labtestPackage.LabTestService('localhost:50053', grpc.credentials.createInsecure());
-
+const createlabtestClient = (address) => {
+  const labtestProto = protoLoader.loadSync(path.join(__dirname, '../proto/labtest.proto'));
+  const labtestPackage = grpc.loadPackageDefinition(labtestProto).labtest;
+  return new labtestPackage.LabTestService(address, grpc.credentials.createInsecure());
+};
 //sends patient id to recieve lab test results from lab test service.js, then collects to results in an array.
-function streamLabResults(patientid) {
+function streamLabResults(patientid, LabTestService) {
   return new Promise((resolve, reject) => {
     console.log("patient id in labclient", patientid);
+    const labtestClient = createlabtestClient(LabTestService);
     const call = labtestClient.StreamLabResults({ patientid: patientid });
     const results = [];
 

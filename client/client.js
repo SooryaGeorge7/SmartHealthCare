@@ -5,10 +5,6 @@ const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config();
 
-//loads consultation chat grpc client
-const chatProto = protoLoader.loadSync(path.join(__dirname, '../proto/consultationchat.proto'));
-const chatPackage = grpc.loadPackageDefinition(chatProto).chat;
-const chatClient = new chatPackage.ChatService('localhost:50052', grpc.credentials.createInsecure());
 
 //import other service clients which are connected to server files to send and recieve data
 const healthMonitorClient =require('./healthMonitorClient');
@@ -19,6 +15,13 @@ const discoveryProto = protoLoader.loadSync(path.join(__dirname, '../proto/disco
 const discoveryPackage = grpc.loadPackageDefinition(discoveryProto).discovery;
 const discoveryClient = new discoveryPackage.DiscoveryService('localhost:50050', grpc.credentials.createInsecure());
 
+//loads consultation chat grpc client
+const createconsultationchatClient = (address) => {
+  const chatProto = protoLoader.loadSync(path.join(__dirname, '../proto/consultationchat.proto'));
+  const chatPackage = grpc.loadPackageDefinition(chatProto).chat;
+  return new chatPackage.ChatService(address, grpc.credentials.createInsecure());
+};
+
 //function for api authentication
 const createMetadata = () => {
   return {
@@ -27,7 +30,8 @@ const createMetadata = () => {
 };
 
 // Bidirectional chat that sends messages after getting replies by using chat grpc service
-const consultationChat = (callback) => {
+const consultationChat = (ChatService,callback) => {
+  const chatClient = createconsultationchatClient(ChatService);
   const call = chatClient.ConsultationChat({}, {metadata: createMetadata()});
   console.log(" Chat session started. Waiting for doctor response  from service.js");
   // handle response from doctor(in this project- this comes from chat service)
@@ -61,8 +65,8 @@ const consultationChat = (callback) => {
 
 //simple rpc - fetch vitals client functionality
 // uses healthMonitorClient.js to requests patient vital signs from server by sending patient id, and sends results/error back to gui
-const fetchVitals = (patientid, callback) => {
-  healthMonitorClient.fetchVitals(patientid, {metadata: createMetadata()})
+const fetchVitals = (patientid,HealthMonitorService, callback) => {
+  healthMonitorClient.fetchVitals(patientid,HealthMonitorService, {metadata: createMetadata()})
     .then(response => {
       console.log("fetch vitals in client",response);
       callback(response);
@@ -75,8 +79,8 @@ const fetchVitals = (patientid, callback) => {
 
 // client side streaming rpc- stream heart rate 
 //uses healthMonitorClient.js to send heart rate data to recieve updates on patient's heart summary to be sent back to gui
-const streamHeartRate = (callback) => {
-  healthMonitorClient.streamHeartRate({}, {metadata: createMetadata()})
+const streamHeartRate = (HealthMonitorService,callback) => {
+  healthMonitorClient.streamHeartRate(HealthMonitorService,{}, {metadata: createMetadata()})
     .then(response => {
       console.log("heartratesummary in client",response);
       callback(response);
@@ -88,9 +92,9 @@ const streamHeartRate = (callback) => {
 };
 
 //uses labTestclient.js to recieve Stream lab results - server streaming rpc, streams lab results from lab result service which is then sent back to gui
-const streamLabResults = (patientid, callback) => {
+const streamLabResults = (patientid,LabTestService, callback) => {
   console.log("patient id in client",patientid)
-  labTestClient.streamLabResults(patientid, {metadata: createMetadata()})
+  labTestClient.streamLabResults(patientid,LabTestService, {metadata: createMetadata()})
     .then((results) => {
       console.log("Lab results received:", results);
       callback(results);

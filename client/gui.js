@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
         }
 
         //Fetch patient's vitals using patient id(simple RPC)
-        client.fetchVitals(patientid, (vitals) => {
+        client.fetchVitals(patientid,HealthMonitorService.address, (vitals) => {
           if (vitals) {
             console.log("vitals in gui:",vitals);
           } else {
@@ -37,7 +37,7 @@ app.get('/', (req, res) => {
           }
           
           // Stream heart rate data(client streaming rpc)
-            client.streamHeartRate((summary) => {
+            client.streamHeartRate(HealthMonitorService.address,(summary) => {
              console.log("heartRateSummaryData:",summary);
              if (!summary) {
               errorMessage = `No heart rate summary available`;
@@ -52,7 +52,7 @@ app.get('/', (req, res) => {
               }
 
               //stream lab test results(server streaming rpc)
-              client.streamLabResults(patientid, (result) => {
+              client.streamLabResults(patientid,LabTestService.address, (result) => {
                 if (!result || result.length===0) {
                   console.log("Lab Test Results:", result);
                   errorMessage = `No labresults available`;
@@ -101,7 +101,7 @@ app.post('/send-chat', (req, res) => {
     }
     
     //sends and recieves messages 
-    const sendMessage = client.consultationChat((response) => {
+    const sendMessage = client.consultationChat(ChatService.address,(response) => {
       console.log("Received doctor response:", response);
       chatMessages.push({ sender: 'Doctor', message: response });
 

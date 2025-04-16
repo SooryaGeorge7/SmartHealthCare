@@ -3,14 +3,17 @@ const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
 
 //create healthmonitor client
-const healthProto = protoLoader.loadSync(path.join(__dirname, '../proto/healthmonitor.proto'));
-const healthPackage = grpc.loadPackageDefinition(healthProto).healthmonitor;
-const healthClient = new healthPackage.HealthMonitorService('localhost:50051', grpc.credentials.createInsecure());
+const createHealthClient = (address) => {
+  const healthProto = protoLoader.loadSync(path.join(__dirname, '../proto/healthmonitor.proto'));
+  const healthPackage = grpc.loadPackageDefinition(healthProto).healthmonitor;
+  return new healthPackage.HealthMonitorService(address, grpc.credentials.createInsecure());
+};
 
 //sends the patient id as request to server and gets a response back to client.js which is then sent back to gui
-function fetchVitals(patientid) {
+function fetchVitals(patientid, HealthMonitorService) {
   console.log("patient id in healthmonitorclient",patientid);
   return new Promise((resolve, reject) => {
+    const healthClient = createHealthClient(HealthMonitorService);
     healthClient.FetchVitals({ patientid: patientid}, (err, response) => {
       if (err) {
         reject(err);
@@ -22,8 +25,9 @@ function fetchVitals(patientid) {
 }
 
 //sends randomly generated heart rate data to server, and recieves response back from server
-function streamHeartRate() {
+function streamHeartRate(HealthMonitorService) {
   return new Promise((resolve, reject) => {
+    const healthClient = createHealthClient(HealthMonitorService);
     const call = healthClient.StreamHeartRate((err, response) => {
       if (err) {
         reject(err); 
