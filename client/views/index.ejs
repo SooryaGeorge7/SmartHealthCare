@@ -33,7 +33,7 @@
         <p><strong>Current Average Heart Rate:</strong> <%= summary.averageheartrate %> bpm</p>
         <p><strong>Risk Level:</strong> <%= summary.risklevel %></p>
         <p><strong>Recommendation:</strong> <%= summary.recommendation %></p>
-    <% } else  { %>
+    <% } else if (errorMessage && !vitals) { %>
         <p class="error">No heart rate summary available.</p>
     <% } %>
 
