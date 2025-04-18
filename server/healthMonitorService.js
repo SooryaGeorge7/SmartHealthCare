@@ -44,6 +44,7 @@ function fetchVitals(call, callback) {
     console.log("vitals found for patient in service file")
     callback(null, vitals); 
   } else {
+    console.log(`No vitals found for patient ID :${patientid}`);
     callback({
       code: grpc.status.NOT_FOUND,
       message: `No vitals found for patient ID :${patientid}`
