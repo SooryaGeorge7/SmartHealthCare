@@ -11,7 +11,8 @@ const healthPackage = grpc.loadPackageDefinition(healthMonitorProto).healthmonit
 const patientVitals = [
    {patientid: "P23", heartrate: 80, oxygenlevel: 98, temperature: 36 },
    {patientid: "P66", heartrate: 75, oxygenlevel: 95, temperature: 37 },
-   {patientid: "P89", heartrate: 90, oxygenlevel: 97, temperature: 36.5 }
+   {patientid: "P89", heartrate: 90, oxygenlevel: 97, temperature: 36.5 },
+   {patientid: "P77", heartrate: 60, oxygenlevel: 87, temperature: 34.5 }
 ];
 
 //this checks if incoming metadata contains valid API key

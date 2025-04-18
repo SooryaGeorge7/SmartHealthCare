@@ -23,7 +23,13 @@ const patientLabResults = {
     { testname: "Urine Test", result: "Slight infection" },
     { testname: "CT Scan", result: "No issues detected" },
     { testname: "X-Ray", result: "No issues detected" }
+  ],
+  "P47": [
+    { testname: "Pap smear Test", result: "Slight infection" },
+    { testname: "Colonoscopy", result: "ulcers found" },
+    { testname: "X-Ray", result: "No issues detected" }
   ]
+  
 };
 
 //this checks if incoming metadata contains valid API key
