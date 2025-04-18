@@ -28,12 +28,12 @@
     <% } %>
 
     <!--Heart Rate Summary -->
-    <% if (summary && vitals) { %>
+    <% if (summary) { %>
         <h2>Heart Rate Summary:</h2>
         <p><strong>Current Average Heart Rate:</strong> <%= summary.averageheartrate %> bpm</p>
         <p><strong>Risk Level:</strong> <%= summary.risklevel %></p>
         <p><strong>Recommendation:</strong> <%= summary.recommendation %></p>
-    <% } else if (errorMessage && !vitals) { %>
+    <% } else if (errorMessage) { %>
         <p class="error">No heart rate summary available.</p>
     <% } %>
 
@@ -42,7 +42,7 @@
         <h2>Lab Test Results:</h2>
         <ul>
             <% result.forEach(function(labtest) { %>
-                <li><strong><%= labtest.testname %>:</strong> <%= labtest.result %></li>
+                <li><strong>Labtest <%= labtest.testname %>:</strong> <%= labtest.result %></li>
             <% }) %>
         </ul>
     <% } else if (errorMessage && result.length===0) { %>
